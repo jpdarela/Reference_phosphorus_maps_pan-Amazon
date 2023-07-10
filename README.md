@@ -1,5 +1,7 @@
 # Reference maps of soil phosphorus for the pan-Amazon region - CODE & DATA
 
+Darela-Filho, J. P., & Lapola, D. M. (2023). Reference maps of soil phosphorus for the pan-Amazon region: code and data Version 1.2) Repositório de Dados de Pesquisa da Unicamp. <https://doi.org/doi:10.25824/redu/FROESE>
+
 ## Introduction
 
 This repository contains code and data employed to generate a set of reference maps of soil phosphorus (P) for the [Pan-Amazon](https://www.amazoniasocioambiental.org/pt-br/radar/raisg-lanca-colecao-2-0-do-mapbiomas-amazonia/) region. The primary intent of these maps is to provide reference data for parametrization and benchmark of Land Surface/Terrestrial Ecosystem models.
