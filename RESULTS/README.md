@@ -25,7 +25,7 @@ The _Pmin1_Pocc.nc4_ file is the estimated Primary Mineral P + the Occluded P fo
 
 The predicted_min-occ_over_total_p.nc4 file is the fraction of total P represented by Pmin1_Pocc.nc4.
 
-The predicted maps for each selected model for each target P form are named predicted\__pform_.nc4.
+The predicted maps for each selected model for each target P form are achived in the files named as  results\__xx__.tar.gz.
 
 The file final_dataset_pred_DI_Pforms.tab contains results in tabular format.
 
