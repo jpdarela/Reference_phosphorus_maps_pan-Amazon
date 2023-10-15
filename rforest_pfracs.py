@@ -10,11 +10,11 @@
 from os import makedirs
 from pathlib import Path
 
-import sys
-import pickle as pkl
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
+import pickle as pkl
+import sys
 
 from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSplit
 from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_absolute_error
@@ -37,7 +37,7 @@ makedirs(dump_folder, exist_ok=True)
 pforms = ['Inorganic P', 'Organic P',
           'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
 
-SLICE = NMODELS // 10
+SLICE = NMODELS // 125
 
 n = str(sys.argv[1])
 
@@ -65,11 +65,11 @@ elif label_name == "total_p":
     SELECT_CRITERION = 75.8
 
 elif label_name == "occ_p":
-    cv_limit = 0.50
+    cv_limit = 0.55
     SELECT_CRITERION = 60
 
 elif label_name == "mineral_p":
-    cv_limit = 0.1
+    cv_limit = 0.55
     SELECT_CRITERION = 5
 
 features = pd.read_csv("./inputDATA/fitting_dataset.csv")
