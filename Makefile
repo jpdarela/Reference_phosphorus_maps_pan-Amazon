@@ -25,19 +25,21 @@ FILE9=partial_dependence_plots.py
 
 pmaps: $(FILE1) $(FILE2) $(FILE3) $(FILE4) $(FILE5) $(FILE6) $(FILE7) $(FILE8) $(FILE9)
 
+	$(PYEXEC) $(FILE1) occ_p
+	$(PYEXEC) $(FILE1) mineral_p
 	$(PYEXEC) $(FILE1) inorg_p
 	$(PYEXEC) $(FILE1) org_p
 	$(PYEXEC) $(FILE1) avail_p
 	$(PYEXEC) $(FILE1) total_p
-
-	$(PYEXEC) $(FILE2)
-	$(PYEXEC) $(FILE3)
-	$(PYEXEC) $(FILE4)
-	$(PYEXEC) $(FILE5)
-	$(PYEXEC) $(FILE6)
-	$(PYEXEC) $(FILE7)
-	$(PYEXEC) $(FILE8)
-	$(PYEXEC) $(FILE9)
+#
+#	$(PYEXEC) $(FILE2)
+#	$(PYEXEC) $(FILE3)
+#	$(PYEXEC) $(FILE4)
+#	$(PYEXEC) $(FILE5)
+#	$(PYEXEC) $(FILE6)
+#	$(PYEXEC) $(FILE7)
+#	$(PYEXEC) $(FILE8)
+#	$(PYEXEC) $(FILE9)
 
 clean_pkl:
 	$(remove) *.pkl

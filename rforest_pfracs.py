@@ -7,6 +7,9 @@
    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+from os import makedirs
+from pathlib import Path
+
 import sys
 import pickle as pkl
 import multiprocessing as mp
@@ -14,28 +17,31 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSplit
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 
 FILE = 1
 
-NMODELS = 1000
+NMODELS = 100000
 
-"""FIT RANDOM FOREST (RF)  REGRESSORS AND SELECT THE MOST ACCURATE MODELS
+"""FIT RANDOM FOREST (RF) REGRESSORS AND SELECT THE MOST ACCURATE MODELS
    USAGE: $ python rforest_pfracs.py <x>
    Where x is in ["inorg_p", "org_p", "avail_p", "total_p"].
 
    SIDE EFFECTS: create pickles with selected RF models
    """
+# Dump pickled selected models here:
+dump_folder = Path("./selected_models").resolve()
+makedirs(dump_folder, exist_ok=True)
 
 pforms = ['Inorganic P', 'Organic P',
-          'Available P (Labile & Soluble)', 'Total P']
+          'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
 
 SLICE = NMODELS // 10
 
 n = str(sys.argv[1])
 
-pfracs = ["inorg_p", "org_p", "avail_p", "total_p"]
+pfracs = ["inorg_p", "org_p", "avail_p", "total_p"] + ["occ_p", "mineral_p"]
 
 assert n in pfracs, "Look the makefile"
 
@@ -58,17 +64,26 @@ elif label_name == "total_p":
     cv_limit = 0.55
     SELECT_CRITERION = 75.8
 
+elif label_name == "occ_p":
+    cv_limit = 0.50
+    SELECT_CRITERION = 60
+
+elif label_name == "mineral_p":
+    cv_limit = 0.1
+    SELECT_CRITERION = 5
+
 features = pd.read_csv("./inputDATA/fitting_dataset.csv")
 
 # # Choose the features
-feat_used = ["lat", "lon", "SRG", "Sand", "Silt", "Clay",
+feat_used = ["lat", "lon", "RSG", "Sand", "Silt", "Clay",
              "Slope", "Elevation", "MAT", "MAP",
              "pH", "TOC", "TN", label_name]
 
 clean_data = features[feat_used]
 
-# # One-hot encoding for nominal variables ('SRG')
-dta = pd.get_dummies(clean_data)
+# # One-hot encoding for nominal variables ('RSG')
+# dta = pd.get_dummies(clean_data, dtype=float)
+dta = pd.get_dummies(clean_data, dtype=float, prefix="", prefix_sep="")
 
 # Variable to be predicted as an np.array
 labels = np.array(dta[label_name])
@@ -115,14 +130,13 @@ def make_model(index):
     predictions = rf.predict(test_features)
 
     # Calculate the absolute errors
-    errors = abs(predictions - test_labels)
+    errors = mean_absolute_error(test_labels, predictions)
 
     # Calculate mean absolute percentage error (MAPE)
-    assert np.all(test_labels > 0)
-    mape = 100 * (errors / test_labels)
-    # Calculate and display accuracy
-    accuracy = 100 - np.mean(mape)
-    # print('Accuracy:', round(accuracy, 2), '%.')
+    mape = mean_absolute_percentage_error(test_labels, predictions) * 100.0
+
+    # Calculate accuracy
+    accuracy = 100.0 - mape
 
     if accuracy >= SELECT_CRITERION and check_crossval(scores, cv_limit):
         r2 = r2_score(test_labels, predictions)
@@ -144,5 +158,6 @@ if __name__ == "__main__":
             result += pool.map(make_model, lst)
 
     models = [a for a in result if a is not None]
-    with open("models_%s.pkl" %label_name, mode="wb") as fh:
+    fname = Path(f"models_{label_name}.pkl")
+    with open(dump_folder/fname, mode="wb") as fh:
         pkl.dump(models, fh)
