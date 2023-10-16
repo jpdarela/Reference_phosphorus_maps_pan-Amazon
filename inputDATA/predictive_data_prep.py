@@ -66,7 +66,9 @@ prepare_shp()
 # # Create a feature layer from the shapefile
 arcpy.MakeFeatureLayer_management(predictive_shp, "lyr")
 
-WHERE = "Sand = 0 And Silt = 0 And Clay = 0 Or Slope = -9999 Or Elevation = -9999 Or MAT = -9999 Or MAP = -9999 Or pH = 0 Or TOC = 0 Or TOC = -9999 Or TN = 0 Or TN = -9999"
+WHERE = "Sand = -9999 Or Silt = -9999 Or Clay = -9999 Or Slope = -9999 Or Elevation = -9999 Or MAT = -9999 Or MAP = -9999 Or pH = -9999 Or TOC = -9999 Or TN = -9999"
+
+# "Sand = 0 And Silt = 0 And Clay = 0 Or Slope = -9999 Or Elevation = -9999 Or MAT = -9999 Or MAP = -9999 Or pH = 0 Or TOC = 0 Or TOC = -9999 Or TN = 0 Or TN = -9999"
 
 arcpy.SelectLayerByAttribute_management("lyr", "NEW_SELECTION", WHERE)
 arcpy.SelectLayerByAttribute_management("lyr", "SWITCH_SELECTION")

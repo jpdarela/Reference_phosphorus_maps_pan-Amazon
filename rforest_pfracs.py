@@ -21,9 +21,11 @@ from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSp
 from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 
+from utilities import PFRACS
+
 FILE = 1
 
-NMODELS = 100_000
+NMODELS = 100#_000
 
 """FIT RANDOM FOREST (RF) REGRESSORS AND SELECT THE MOST ACCURATE MODELS
    USAGE: $ python rforest_pfracs.py <x>
@@ -38,11 +40,11 @@ makedirs(dump_folder, exist_ok=True)
 pforms = ['Inorganic P', 'Organic P',
           'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
 
-SLICE = 800
+SLICE = 5
 
 n = str(sys.argv[1])
 
-pfracs = ["inorg_p", "org_p", "avail_p", "total_p"] + ["occ_p", "mineral_p"]
+pfracs = PFRACS
 
 assert n in pfracs, "Look the makefile"
 

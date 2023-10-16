@@ -9,8 +9,35 @@
 """
 
 from pickle import load
+
+from numba import jit
 from numpy import array
 from pandas import read_csv, get_dummies
+
+PFRACS = ["occ_p"]#["inorg_p", "org_p", "avail_p", "total_p", "occ_p", "mineral_p"]
+
+@jit(nopython=True)
+def find_coord(N:float, W:float, RES:float, lat, lon) -> tuple[int, int]:
+    """
+
+    :param N:float: latitude in decimal degrees
+    :param W:float: Longitude in decimal degrees
+    :param RES:float: Resolution in degrees (Default value = 0.5)
+
+    """
+
+    Yc = round(N, 5)
+    Xc = round(W, 5)
+
+    for Yind, y in enumerate(lat):
+        if abs(Yc - y) < RES/4:
+           break
+
+    for Xind, x in enumerate(lon):
+        if abs(Xc - x)  < RES/4:
+           break
+
+    return Yind, Xind
 
 
 def best_model(label):

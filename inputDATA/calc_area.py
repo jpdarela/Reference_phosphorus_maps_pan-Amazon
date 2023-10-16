@@ -10,4 +10,4 @@ with Dataset("extent.nc") as dt:
 
 area = CellAreas(lat, lon)
 
-np.savez("extent.npz", area=area, lat=lat, lon=lon, cell_size=1/12)
+np.savez("extent.npz", area=area, lat=lat, lon=lon, cell_size=1/12, mask=mask)
