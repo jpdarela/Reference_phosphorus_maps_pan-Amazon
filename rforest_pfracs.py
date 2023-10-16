@@ -66,11 +66,11 @@ elif label_name == "total_p":
     SELECT_CRITERION = 75.8
 
 elif label_name == "occ_p":
-    cv_limit = 0.50
+    cv_limit = 0.55
     SELECT_CRITERION = 60
 
 elif label_name == "mineral_p":
-    cv_limit = 0.1
+    cv_limit = 0.55
     SELECT_CRITERION = 5
 
 features = pd.read_csv("./inputDATA/fitting_dataset.csv")
