@@ -22,7 +22,7 @@ If you want it is possible to build the P maps archived in the ./RESULTS folder 
 
 ## Software dependencies
 
-- python3 - numpy, pandas, matplotlib, cartopy, scikit-learn, netCDF4, cfunits
+- python3 - numpy, pandas, matplotlib, cartopy, scikit-learn, netCDF4, cfunits, pyarrow, numba
 
 - make, geos, proj, udunits2
 
@@ -50,7 +50,7 @@ The software was built incrementally during the developement of the maps. Some s
 
 Issue the following command on the anaconda3 PS/cmd prompt to create a new virtual environment called pmaps. It will be used to run the code:
 
-``(base)C:\> conda create --channel conda-forge -n pmaps make m2-base geos proj udunits2 python numpy pandas matplotlib cartopy scikit-learn netCDF4 cfunits``
+``(base)C:\> conda create --channel conda-forge -n pmaps make m2-base geos proj udunits2 python numpy pandas matplotlib cartopy scikit-learn netCDF4 cfunits pyarrow numba``
 
 At this point close the anaconda prompt and set the environment variable UDUNITS2_XML_PATH to the path of the udunits2.xml file in your system. This file will be in the user folder, under an address like ~/anaconda3/Library/share/udunits/udunits2.xml.
 

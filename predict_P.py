@@ -80,7 +80,7 @@ for label_name in pfracs:
         output_data = deepcopy(template)
 
         output_data[label_name] = new_column
-        output_data.to_csv(output/Path("predicted_%s_model_%s.csv" % (label_name, str(md[0]))), index=False, header=True)
+        output_data.to_feather(output/Path("predicted_%s_model_%s.feather" % (label_name, str(md[0]))))
 
     with open('model_selection_scores.csv', 'a') as csv_file:
         line = [label_name, str(i+1), str(round(sum(acc) / (i + 1), 2)), str(mean(mae)), str(mean(r2)), str(mean(cv_mean)), str(mean(cv_std)) + "\n"]

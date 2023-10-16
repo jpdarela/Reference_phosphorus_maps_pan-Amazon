@@ -31,19 +31,16 @@ xdim = geo_description["lon"].size
 
 
 def rasterize(arr):
-    # df = pd.read_csv(fname)
     out = np.zeros(shape=(ydim, xdim), dtype=np.float32) - 9999.0
     laty = arr[:,1]
     lonx = arr[:,2]
     val = arr[:,3]
+    cut_point = np.percentile(val, 99.85)
+    idx = np.where(val > cut_point)
+    val[idx[0]] = -9999.0
     for y, x, v in zip(laty, lonx, val):
         ny, nx = find_coord(y, x, cell_size, lat, lon)
         out[ny, nx] = v
-
-    # for row in iter:
-    #     y, x = find_coord(row.lat, row.lon, geo_description["cell_size"], geo_description["lat"], geo_description["lon"])
-    #     out[y, x] = row[label]
-
     return out
 
 # def save_nc(fname, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1'):
@@ -148,10 +145,15 @@ if __name__ == "__main__":
     for label_name in PFRACS:
         print(label_name)
         output = Path(f"predicted_P_{label_name}").resolve()
-        files = glob.glob1(output, "*.csv")
-        for file in files:
-            arr = pd.read_csv(output/Path(file)).__array__()
-            data = rasterize(arr)
+        files = glob.glob1(output, "*.feather")
+        mdim = len(files)
+        out = np.zeros(shape=(mdim, ydim, xdim), dtype=np.float32)
+        for i, file in enumerate(files):
+            arr = pd.read_feather(output/Path(file)).__array__()
+            out[i, :, :]= rasterize(arr)
+
+        data = np.ma.masked_array(out, out == -9999)
+        #:#save netCDF
 
         # names = feat_list + [label_name,]
         # folder = "./predicted_P_%s/" % label_name

@@ -59,7 +59,7 @@ def prepare_shp():
         assert raster.exists(), f"{str(raster)} not found"
 
     # # Execute ExtractValuesToPoints
-    ExtractMultiValuesToPoints(predictive_shp, in_rasters, 1)
+    ExtractMultiValuesToPoints(predictive_shp, in_rasters, None)
 
 prepare_shp()
 
