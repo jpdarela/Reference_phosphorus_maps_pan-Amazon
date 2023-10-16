@@ -1,78 +1,83 @@
+import glob
 
+from pathlib import Path
 
-#### Make a copy
-
-# Import system modules
-import arcpy
-
-# Set workspace
-arcpy.env.workspace = "C:/data"
-
-# Set local variables
-in_data =  "majorrds.shp"
-out_data = "C:/output/majorrdsCopy.shp"
-
-# Run Copy
-arcpy.management.Copy(in_data, out_data)
-
-
-
-#### extract values from rasters
-
-
-# Name: ExtractMultiValuesToPoints_Ex_02.py
-# Description: Extracts the cells of multiple rasters as attributes in
-#    an output point feature class.  This example takes a multiband IMG
-#    and two GRID files as input.
-# Requirements: Spatial Analyst Extension
-
-# Import system modules
 import arcpy
 from arcpy import env
 from arcpy.sa import *
 
-# Set environment settings
-env.workspace = "C:/sapyexamples/data"
 
-# Set local variables
-inPointFeatures = "poi.shp"
-inRasterList = [["doqq.img", "doqqval"], ["redstd", "focalstd"],
-                ["redmin", "focalmin"]]
+#### Make a copy of the shapefile that will be employed to extract pixel values
 
-# Execute ExtractValuesToPoints
-ExtractMultiValuesToPoints(inPointFeatures, inRasterList, "BILINEAR")
+# Set workspace
+raster_folder = Path("./predictive_rasters_5m")
 
+env.workspace = str(raster_folder)
+env.overwriteOutput = True
 
-######  remove nulls
+# Set global variables
 
-import arcpy
+template_shp = Path("./shp/template_predictive_dataset.shp")
 
-# Assuming 'your_shapefile' is your shapefile and 'fields' is a list of your fields
-your_shapefile = 'path_to_your_shapefile'
-fields = ['field1', 'field2', 'field3', ...]
+predictive_shp = r"predictive.shp"
 
-# Create a feature layer from the shapefile
-arcpy.MakeFeatureLayer_management(your_shapefile, "lyr")
+def prepare_shp():
+    # Run Copy
+    arcpy.management.Copy(str(template_shp), predictive_shp)
 
-for field in fields:
-    # SQL to select non-nulls
-    fieldDelim = arcpy.AddFieldDelimiters("lyr", field)
-    sql = "{} IS NOT NULL".format(fieldDelim)
+    # Extract multi values to points
+    in_rasters = [
+        ["sand.tif", "Sand"],
+        ["silt.tif", "Silt"],
+        ["clay.tif", "Clay"],
+        ["slope.tif", "Slope"],
+        ["elevation.tif", "Elevation"],
+        ["mat.tif", "MAT"],
+        ["map.tif", "MAP"],
+        ["ph.tif", "pH"],
+        ["toc.tif", "TOC"],
+        ["nitrogen.tif", "TN"],
+        ["acrisols.tif", "Acrisols"],
+        ["alisols.tif", "Alisols"],
+        ["andosols.tif", "Andosols"],
+        ["arenosols.tif", "Arenosols"],
+        ["cambisols.tif", "Cambisols"],
+        ["ferralsols.tif", "Ferralsols"],
+        ["fluvisols.tif", "Fluvisols"],
+        ["gleysols.tif", "Gleysols"],
+        ["lixisols.tif", "Lixisols"],
+        ["luvisols.tif", "Luvisols"],
+        ["nitisols.tif", "Nitisols"],
+        ["plinthosols.tif", "Plinthosols"],
+        ["podzols.tif", "Podzols"],
+        ["regosols.tif", "Regosols"],
+        ["umbrisols.tif", "Umbrisols"]]
 
-    # Select non-nulls
-    arcpy.SelectLayerByAttribute_management("lyr", "NEW_SELECTION", sql)
+    # Assert files exists
+    for a in in_rasters:
+        raster = raster_folder/Path(a[0])
+        assert raster.exists(), f"{str(raster)} not found"
+
+    # # Execute ExtractValuesToPoints
+    ExtractMultiValuesToPoints(predictive_shp, in_rasters, 1)
+
+prepare_shp()
+
+# # Create a feature layer from the shapefile
+arcpy.MakeFeatureLayer_management(predictive_shp, "lyr")
+
+WHERE = "Sand = 0 And Silt = 0 And Clay = 0 Or Slope = -9999 Or Elevation = -9999 Or MAT = -9999 Or MAP = -9999 Or pH = 0 Or TOC = 0 Or TOC = -9999 Or TN = 0 Or TN = -9999"
+
+arcpy.SelectLayerByAttribute_management("lyr", "NEW_SELECTION", WHERE)
+arcpy.SelectLayerByAttribute_management("lyr", "SWITCH_SELECTION")
 
 # Export the selected features to a new shapefile
-arcpy.CopyFeatures_management("lyr", 'path_to_new_shapefile')
+arcpy.CopyFeatures_management("lyr", 'predictive_final.shp')
 
 # Delete the feature layer to clean up
 arcpy.Delete_management("lyr")
 
+# Export to csv
+arcpy.conversion.ExportTable('predictive_final.shp', "../inputDATA/predictive.csv")
 
-
-### export to csv
-
-import arcpy
-arcpy.env.workspace = "C:/data"
-arcpy.conversion.ExportTable("vegtable.dbf", "C:/output/output.gdb/vegtable")
 

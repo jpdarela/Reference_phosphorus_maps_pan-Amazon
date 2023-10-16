@@ -10,11 +10,12 @@
 from os import makedirs
 from pathlib import Path
 
-import sys
-import pickle as pkl
 import multiprocessing as mp
+
 import numpy as np
 import pandas as pd
+import pickle as pkl
+import sys
 
 from sklearn.model_selection import train_test_split, cross_val_score, ShuffleSplit
 from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_absolute_error
@@ -22,7 +23,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 FILE = 1
 
-NMODELS = 100000
+NMODELS = 100_000
 
 """FIT RANDOM FOREST (RF) REGRESSORS AND SELECT THE MOST ACCURATE MODELS
    USAGE: $ python rforest_pfracs.py <x>
@@ -37,7 +38,7 @@ makedirs(dump_folder, exist_ok=True)
 pforms = ['Inorganic P', 'Organic P',
           'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
 
-SLICE = NMODELS // 10
+SLICE = 800
 
 n = str(sys.argv[1])
 
@@ -154,7 +155,7 @@ if __name__ == "__main__":
     # FIT & SAVE selected models to a pickle
     result = []
     for lst in chunks(np.arange(1,NMODELS + 1), SLICE):
-        with mp.Pool(processes=mp.cpu_count() - 1) as pool:
+        with mp.Pool(processes=mp.cpu_count() - 3) as pool:
             result += pool.map(make_model, lst)
 
     models = [a for a in result if a is not None]
