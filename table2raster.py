@@ -10,6 +10,9 @@
 import glob
 from pathlib import Path
 from numba import jit
+
+from netCDF4 import Dataset
+import cfunits
 import numpy as np
 import pandas as pd
 
@@ -140,6 +143,26 @@ def rasterize(arr):
 #         var_[:,:] = np.flipud(arr)
 #     rootgrp.close()
 
+def ppools_gm2(vname):
+    """Build Netcdfs with values in g.m⁻²(0-300mm). Use the Dry Bulk density from SoilGrids"""
+    var = PFRACS
+    if vname in var:
+        dt = Dataset(f"./predicted_{vname}.nc4").variables[vname][:,:,:]
+        form_p = np.flipud(dt.data.mean(axis=0,))
+        mask = form_p == -9999.0
+    else:
+        dt = Dataset("./Pmin1_Pocc.nc4").variables[vname][:,:]
+        form_p = np.flipud(dt.data)
+        mask = form_p == -9999.0
+
+    bd = Dataset("./inputDATA/soil_bulk_density.nc").variables['b_ds_final'][:]
+
+    tp = cfunits.Units.conform(form_p, cfunits.Units('mg kg-1'), cfunits.Units('g g-1'))
+    den = cfunits.Units.conform(bd, cfunits.Units('kg dm-3'), cfunits.Units('g m-3'))
+
+    p_form = np.ma.masked_array((0.3 * tp) * den, mask=mask == True)
+    save_nc(f"{vname}_density.nc4", p_form, vname, ndim=None, units='g.m-2')
+
 if __name__ == "__main__":
 
     for label_name in PFRACS:
@@ -151,9 +174,21 @@ if __name__ == "__main__":
         for i, file in enumerate(files):
             arr = pd.read_feather(output/Path(file)).__array__()
             out[i, :, :]= rasterize(arr)
-
+        # exclude gridcells with high SE here
         data = np.ma.masked_array(out, out == -9999)
         #:#save netCDF
+        bulk_density = ""
+
+        # stats
+        pAVG = ""
+        pSE = ""
+        pSD = ""
+
+        # area desnsity
+
+
+
+
 
         # names = feat_list + [label_name,]
         # folder = "./predicted_P_%s/" % label_name

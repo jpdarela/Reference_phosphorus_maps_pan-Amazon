@@ -1,4 +1,5 @@
-inputDATA/download_SoilGrids/data/
-inputDATA/download_SoilGrids/WRB/
+inputDATA/SoilGrids/data/
+inputDATA/SoilGrids/WRB/
+inputDATA/WorldClim/wc*
 selected_models
 __pycache__

@@ -30,11 +30,11 @@ def find_coord(N:float, W:float, RES:float, lat, lon) -> tuple[int, int]:
     Xc = round(W, 5)
 
     for Yind, y in enumerate(lat):
-        if abs(Yc - y) < RES/4:
+        if abs(Yc - y) < RES/2:
            break
 
     for Xind, x in enumerate(lon):
-        if abs(Xc - x)  < RES/4:
+        if abs(Xc - x)  < RES/2:
            break
 
     return Yind, Xind

@@ -5,8 +5,12 @@ from sys import argv
 
 import arcpy
 from arcpy.sa import RasterCalculator, SetNull, ExtractByMask
+from arcpy.ia import NbrRectangle, FocalStatistics, Con, IsNull
 
 from owslib.wcs import WebCoverageService
+
+import numpy as np
+
 
 __descr__ = """download files from soilgrids using WCS (https://maps.isric.org/) and uses arcpy to do some pre-processing"""
 
@@ -27,9 +31,13 @@ arcpy.env.workspace = str(output)
 arcpy.env.overwriteOutput = True
 
 mask = r"..\shp\pan_Amazon_mask.shp"
+dump_folder = Path("../predictive_rasters_5m").resolve()
+
 BBOX = [-80, -21, -42, 10]
 
 filepaths = {}
+
+
 
 map_servers = {"nitrogen":     "https://maps.isric.org/mapserv?map=/map/nitrogen.map",
                "bdod":         "https://maps.isric.org/mapserv?map=/map/bdod.map",
@@ -48,6 +56,17 @@ conv_factors = {          # converts to:
     "silt": 1/10/100,     # fraction 0-1
     "soc": 1/10/10,       # %
     "phh2o": 1/10,        # -log(H+)
+    }
+
+
+new_name = {
+    "nitrogen": "nitrogen",
+    "bdod": "bulk_density",
+    "clay": "clay",
+    "sand": "sand",
+    "silt": "silt",
+    "soc": "toc",
+    "phh2o": "ph",
     }
 
 def get_service(vname):
@@ -74,8 +93,8 @@ def download(vname):
     for name in names:
         if dld:
             res = wcs.getCoverage(
-                resx = 0.08333333333,
-                resy = 0.08333333333,
+                resx = 0.083333333333333333,
+                resy = 0.083333333333333333,
                 identifier= name,
                 crs = "urn:ogc:def:crs:EPSG::4326",
                 bbox = BBOX,
@@ -91,10 +110,13 @@ def download(vname):
                 file.write(res.read())
     filepaths[vn] = fpath
 
-
 def process(vname):
+
     assert len(filepaths) > 0
     assert vname in filepaths.keys()
+
+    extraction_area = "INSIDE"
+    analysis_extent = mask
 
     data = []
     for k in filepaths[vname]:
@@ -106,13 +128,24 @@ def process(vname):
     out_rc = RasterCalculator(data, ["a", "b", "c"],
                                        op ,"IntersectionOf", "MinOf")
     # Set zero to nodata
-    if vname == "nitrogen":
+    final_tif = str(dump_folder/Path(f"{new_name[vname]}.tif").resolve())
+    if vname in list(map_servers.keys()):
         out_rc = SetNull(out_rc, out_rc, "VALUE = 0")
-        # outSetNull.save(f"{vname}.tif")
-    extraction_area = "INSIDE"
-    analysis_extent = mask
+        # Focal stats to fill no data
+        neighborhood = NbrRectangle(4, 4, "CELL")
+        focal_stats = FocalStatistics(out_rc, neighborhood, "MEAN", "")
+        focal_stats = ExtractByMask(focal_stats, mask, extraction_area, analysis_extent)
+        # focal_stats.save(f"{vname}_focal_stats.tif")
+
     out_rc = ExtractByMask(out_rc, mask, extraction_area, analysis_extent)
+
+    out_rc = Con(IsNull(out_rc) ,focal_stats, out_rc)
+
+    arcpy.management.CopyRaster(in_raster=out_rc, out_rasterdataset=final_tif,
+                                nodata_value="-9999", pixel_type="32_BIT_FLOAT", format="TIFF")
+
     out_rc.save(f"{vname}.tif")
+
 
 def get_wrb():
     wsp = arcpy.env.workspace
@@ -126,14 +159,15 @@ def get_wrb():
     analysis_extent = mask
     for name in names:
         res = wcs.getCoverage(
-                resx = 0.08333333333,
-                resy = 0.08333333333,
+                resx = 0.083333333333333333,
+                resy = 0.083333333333333333,
                 identifier= name,
                 crs = "urn:ogc:def:crs:EPSG::4326",
                 bbox = BBOX,
                 format = format
                 )
-        fname = output/Path(f"{name}.tif")
+        fid = Path(f"{name}.tif")
+        fname = output/fid
         with open(fname, 'wb') as file:
             file.write(res.read())
 
@@ -143,7 +177,10 @@ def get_wrb():
             op = "a/100.0"
             out_extr = RasterCalculator([out_extr,], ["a",],
                                        op ,"IntersectionOf", "MinOf")
+        final_tif = str(dump_folder/fid)
 
+        arcpy.management.CopyRaster(in_raster=out_extr, out_rasterdataset=final_tif,
+                                nodata_value="-9999", pixel_type="32_BIT_FLOAT", format="TIFF")
         out_extr.save(f"{name}.tif")
     arcpy.env.workspace = wsp
 
