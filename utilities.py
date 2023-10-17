@@ -14,7 +14,7 @@ from numba import jit
 from numpy import array
 from pandas import read_csv, get_dummies
 
-PFRACS = ["occ_p"]#["inorg_p", "org_p", "avail_p", "total_p", "occ_p", "mineral_p"]
+PFRACS = ["inorg_p", "org_p", "avail_p", "total_p", "occ_p"]
 
 @jit(nopython=True)
 def find_coord(N:float, W:float, RES:float, lat, lon) -> tuple[int, int]:

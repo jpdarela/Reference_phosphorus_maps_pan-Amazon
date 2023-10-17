@@ -3,3 +3,4 @@ inputDATA/SoilGrids/WRB/
 inputDATA/WorldClim/wc*
 selected_models
 __pycache__
+predicted_P*

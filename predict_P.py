@@ -13,6 +13,7 @@ import os
 import pickle as pkl
 import pandas as pd
 from numpy import mean
+from utilities import PFRACS
 
 
 FILE = 2
@@ -28,7 +29,7 @@ feat_list = ["lat","lon","Sand","Silt","Clay","Slope","Elevation","MAT","MAP","p
     "Ferralsols","Fluvisols","Gleysols","Lixisols","Luvisols","Nitisols",
     "Plinthosols","Podzols","Regosols","Umbrisols"]
 
-pfracs = ["occ_p"]#["inorg_p", "org_p", "avail_p", "total_p", "occ_p", "mineral_p"]
+pfracs = PFRACS
 
 
 fh = open("model_selection_scores.csv", 'w')
