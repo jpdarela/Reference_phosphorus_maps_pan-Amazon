@@ -1,4 +1,4 @@
-,lat,lon,Sand,Silt,Clay,Slope,Elevation,MAT,MAP,pH,TOC,TN,Acrisols,Alisols,Andosols,Arenosols,Cambisols,Ferralsols,Fluvisols,Gleysols,Lixisols,Luvisols,Nitisols,Plinthosols,Podzols,Regosols,Umbrisols
+id,lat,lon,Sand,Silt,Clay,Slope,Elevation,MAT,MAP,pH,TOC,TN,Acrisols,Alisols,Andosols,Arenosols,Cambisols,Ferralsols,Fluvisols,Gleysols,Lixisols,Luvisols,Nitisols,Plinthosols,Podzols,Regosols,Umbrisols
 0,-16.4021,-61.2264,0.75,0.14,0.1,0.8433468,444.0,24.6,1150.0,5.9,1.08,0.12,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 1,-15.1852,-61.32,0.49,0.2,0.31,1.025169,323.0,24.1,1270.0,6.3,1.85,0.17,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 2,1.93,-67.038,0.89,0.06,0.05,0.1942898,98.6,26.2,3425.0,5.03,2.049,0.11,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

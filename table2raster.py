@@ -7,8 +7,9 @@
    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-
 from math import sqrt
+import concurrent.futures
+from os import makedirs
 import glob
 from pathlib import Path
 
@@ -25,6 +26,8 @@ FILE = 3
     USAGE: python table2raster.py
     SIDE EFFECTS: Create netCDF4 files named predicted_<pform>.nc4 """
 
+comment = "Values for concentration and for area density estimates of P are for the 0-30 cm soil layer, i.e. the topsoil."
+
 geo_description = np.load("./inputDATA/extent.npz")
 lat = geo_description["lat"]
 lon = geo_description["lon"]
@@ -33,38 +36,29 @@ cell_size = geo_description["cell_size"]
 ydim = geo_description["lat"].size
 xdim = geo_description["lon"].size
 
-outnc = Path("./RESULTS/")
+outnc = Path("./results/")
+makedirs(outnc, exist_ok=True)
 
-def rasterize(arr):
+# Soil dry bulk density from SoilGrids
+bd = Dataset("./inputDATA/bulk_density.nc").variables['bulk_density'][:]
+
+
+def rasterize(arr, clean=True, offset=0):
     out = np.zeros(shape=(ydim, xdim), dtype=np.float32) - 9999.0
-    laty = arr[:,1]
-    lonx = arr[:,2]
-    val = arr[:,3]
-    cut_point = np.percentile(val, 99.85)
-    idx = np.where(val > cut_point)
-    val[idx[0]] = -9999.0
+    laty = arr[:, 1 - offset]
+    lonx = arr[:, 2 - offset]
+    val =  arr[:, 3 - offset]
+    if clean:
+        cut_point = np.percentile(val, 99.85)
+        idx = np.where(val > cut_point)
+        val[idx[0]] = -9999.0
     for y, x, v in zip(laty, lonx, val):
         ny, nx = find_coord(y, x, cell_size, lat, lon)
         out[ny, nx] = v
     return out
 
-def save_nc(fname, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1'):
 
-
-    # var = ['total_p', 'org_p', 'inorg_p', 'avail_p',
-    #        'total_p_SE', 'org_p_SE', 'inorg_p_SE', 'avail_p_SE',
-    #        'total_p_STD', 'org_p_STD', 'inorg_p_STD', 'avail_p_STD',
-    #        'org_ppercent_of_total_p', 'inorg_ppercent_of_total_p', 'avail_ppercent_of_total_p',
-    #        'min1-occ_percent_of_total_p', 'mineral_p']
-    # lab = ['Total P', 'Organic P', 'Secondary Mineral P', 'Available P',
-    #        'Standard Error Total P', 'Standard Error Organic P', 'Standard Error Secondary Mineral P', 'Standard Error Available P',
-    #        'Standard Deviation Total P', 'Standard Deviation Organic P', 'Standard Deviation Secondary Mineral P', 'Standard Deviation Available P',
-    #        'Fraction of Total P - Organic P', 'Fraction of Total P - Secondary Mineral P', 'Fraction of Total P - Available P',
-    #        'Fraction of Total P - Estimated Primary Mineral P + Occluded P', 'Estimated Primary Mineral P + Occluded P']
-
-    # long_name = dict(list(zip(var, lab)))
-
-    nc_filename = fname
+def save_nc(nc_filename, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1', comm=comment):
 
     rootgrp = Dataset(nc_filename, mode='w', format='NETCDF4')
 
@@ -96,12 +90,12 @@ def save_nc(fname, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1'):
 
         var_ = rootgrp.createVariable(varname = varname,
                                   datatype=np.float32,
-                                  dimensions=("models", "latitude","longitude",),
+                                  dimensions=("models", "latitude", "longitude",),
                                   fill_value=-9999.0,
                                   compression="zlib",
-                                  complevel=8,
+                                  complevel=9,
                                   shuffle=True,
-                                  least_significant_digit=2,
+                                  least_significant_digit=1,
                                   fletcher32=True)
     else:
         var_ = rootgrp.createVariable(varname = varname,
@@ -111,9 +105,10 @@ def save_nc(fname, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1'):
 
         #attributes
         ## rootgrp
-    rootgrp.description =  'Phosphorus forms in topsoil (0-30 cm) predicted by Random Forest regressions'
+    rootgrp.description = 'Phosphorus forms in topsoil (0-30 cm) predicted by Random Forest regressions'
     rootgrp.source = "Reference Maps of Soil Phosphorus for the Pan-Amazon Region"
     rootgrp.author = "Joao Paulo Darela Filho<darelafilho@gmail.com>"
+    rootgrp.info = comm
 
     ## lat
     latitude.units = u"degrees_north"
@@ -150,81 +145,76 @@ def save_nc(fname, arr, varname, ndim=None, axis_data=[0,], units='mg.kg-1'):
         var_[:,:] = arr
     rootgrp.close()
 
-# def ppools_gm2(vname):
-#     """Build Netcdfs with values in g.m⁻²(0-300mm). Use the Dry Bulk density from SoilGrids"""
-#     var = PFRACS
-#     if vname in var:
-#         dt = Dataset(f"./predicted_{vname}.nc4").variables[vname][:,:,:]
-#         form_p = np.flipud(dt.data.mean(axis=0,))
-#         mask = form_p == -9999.0
-#     else:
-#         dt = Dataset("./Pmin1_Pocc.nc4").variables[vname][:,:]
-#         form_p = np.flipud(dt.data)
-#         mask = form_p == -9999.0
 
-#     bd = Dataset("./inputDATA/soil_bulk_density.nc").variables['b_ds_final'][:]
+def ppools_gm2(vn, bd):
+    """Build Netcdfs with values in g.m⁻²(0-300mm). Use the Dry Bulk density from SoilGrids"""
+    assert vn in PFRACS or vn == "mineral_p"
+    vname = vn
+    if vname != "mineral_p":
+        form_p = Dataset(outnc/Path(f"{vname}_AVG.nc")).variables[vname][:]
+    else:
+        form_p = Dataset(outnc/Path(f"mineral_p.nc")).variables["mineral_p"][:]
 
-#     tp = cfunits.Units.conform(form_p, cfunits.Units('mg kg-1'), cfunits.Units('g g-1'))
-#     den = cfunits.Units.conform(bd, cfunits.Units('kg dm-3'), cfunits.Units('g m-3'))
+    tp = cfunits.Units.conform(form_p, cfunits.Units('mg kg-1'), cfunits.Units('g g-1'))
+    den = cfunits.Units.conform(bd, cfunits.Units('kg dm-3'), cfunits.Units('g m-3'))
 
-#     p_form = np.ma.masked_array((0.3 * tp) * den, mask=mask == True)
-#     save_nc(f"{vname}_density.nc4", p_form, vname, ndim=None, units='g.m-2')
+    p_form = 0.3 * tp * den
+    save_nc(outnc/Path(f"{vname}_area_density.nc"), p_form, vname, ndim=None, units='g.m-2') # 0-30 cm
+
+
+def process(label_name):
+    assert label_name in PFRACS
+    print(label_name)
+
+    output = Path(f"predicted_P_{label_name}").resolve()
+    files = glob.glob1(output, "*.feather")
+    mdim = len(files)
+
+    out = np.zeros(shape=(mdim, ydim, xdim), dtype=np.float32) - 9999.0
+    model_r_states = []
+
+    for i, file in enumerate(files):
+        model_r_states.append(file.split('.')[0].split('_')[-1])
+        arr = pd.read_feather(output/Path(file)).__array__()
+        out[i, :, :]= rasterize(arr)
+
+    # Save the predictions of all models
+    data = np.ma.masked_array(out, out == -9999)
+    save_nc(f"{outnc/Path(f'{label_name}.nc')}", data, label_name, ndim=mdim, axis_data=model_r_states)
+
+    # SAve the mean prediction and store for use in the primary mineral P estimation
+    pAVG = data.mean(axis=0,)
+    save_nc(f"{outnc/Path(f'{label_name}_AVG.nc')}", pAVG, label_name)
+    # SD & SE
+    pSD = data.std(axis=0,)
+    save_nc(f"{outnc/Path(f'{label_name}_SD.nc')}", pSD, label_name)
+    pSE = pSD/sqrt(mdim) - 1
+    save_nc(f"{outnc/Path(f'{label_name}_SE.nc')}", pSE, label_name)
+
+    #Estimate area density pools
+    ppools_gm2(label_name, bd)
+
+
+    return (label_name, pAVG)
+
 
 if __name__ == "__main__":
 
-    for label_name in PFRACS:
-        print(label_name)
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        result = executor.map(process, PFRACS)
 
-        output = Path(f"predicted_P_{label_name}").resolve()
-        files = glob.glob1(output, "*.feather")
-        mdim = len(files)
+    # Calculate the missing primary mineral P
+    pforms = dict(list(result))
+    mineral_p = pforms["total_p"] - (pforms["avail_p"] + pforms["org_p"] + pforms["inorg_p"] + pforms["occ_p"])
+    pforms["mineral_p"] = mineral_p
+    save_nc(f"{outnc/Path('mineral_p.nc')}", mineral_p, "mineral_p")
+    ppools_gm2("mineral_p", bd)
 
-        out = np.zeros(shape=(mdim, ydim, xdim), dtype=np.float32) - 9999.0
-        model_r_states = []
+    # calculate percenteges of the total
+    for var in PFRACS[:4] + ["mineral_p",]:
+        percentage = (pforms[var] / pforms["total_p"]) * 100.0
+        save_nc(f"{outnc/Path(f'{var}_percentage_of_total_p.nc')}", percentage, var, units="%")
 
-        for i, file in enumerate(files):
-            model_r_states.append(file.split('.')[0].split('_')[-1])
-            arr = pd.read_feather(output/Path(file)).__array__()
-            out[i, :, :]= rasterize(arr)
+    # calculate P stocks  (basin spatial integration)
+    #
 
-        # exclude gridcells with high SE here
-        data = np.ma.masked_array(out, out == -9999)
-        save_nc(f"{outnc/Path(f'{label_name}.nc')}", data, label_name, ndim=len(model_r_states), axis_data=model_r_states)
-        pAVG = data.mean(axis=0,)
-        save_nc(f"{outnc/Path(f'{label_name}_AVG.nc')}", pAVG, label_name)
-        pSD = data.std(axis=0,)
-        save_nc(f"{outnc/Path(f'{label_name}_SD.nc')}", pSD, label_name + "_SD")
-        pSE = pSD/sqrt(len(model_r_states))
-        save_nc(f"{outnc/Path(f'{label_name}_SE.nc')}", pSE, label_name + "_SE")
-
-        #:#save netCDF
-        bulk_density = ""
-
-        # stats
-
-
-        # area desnsity
-
-
-
-
-
-        # names = feat_list + [label_name,]
-        # folder = "./predicted_P_%s/" % label_name
-        # files = glob.glob1(folder, "*.csv")
-        # nmodels = int(len(files))
-        # output_arr = np.zeros(shape=(nmodels,360,720),dtype=np.float32) - 9999.0
-        # model_r_states = []
-        # for i, fh in enumerate(files):
-        #     filename_store = fh
-        #     model_r_states.append(fh.split('.')[0].split('_')[-1])
-        #     arr = col2arr(folder + fh, -1, names)
-        #     output_arr[i,:,:] = arr[0].__array__()
-
-        # output_arr = np.ma.masked_array(output_arr, output_arr == -9999.0)
-
-        # frac = filename_store.split('.')[0].split('_')[1]
-        # de_que = filename_store.split('.')[0].split('_')[2]
-
-        # fname = filename_store.split('.')[0].split('_')[0] + diff + "_" + frac + "_" + de_que + ".nc4"
-        # save_nc(fname, output_arr, label_name, ndim=len(model_r_states), axis_data=model_r_states)

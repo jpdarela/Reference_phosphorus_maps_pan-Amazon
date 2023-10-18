@@ -9,20 +9,24 @@
 """
 
 from pickle import load
-
+import numpy as np
 from numba import jit
-from numpy import array
-from pandas import read_csv, get_dummies
 
-PFRACS = ["inorg_p", "org_p", "avail_p", "total_p", "occ_p"]
+PFRACS = ["inorg_p", "org_p", "avail_p", "occ_p" , "total_p"]
 
 @jit(nopython=True)
-def find_coord(N:float, W:float, RES:float, lat, lon) -> tuple[int, int]:
+def find_coord(N:float,
+               W:float,
+               RES:float,
+               lat:np.array=None,
+               lon:np.array=None
+               ) -> tuple[int, int]:
     """
-
     :param N:float: latitude in decimal degrees
     :param W:float: Longitude in decimal degrees
-    :param RES:float: Resolution in degrees (Default value = 0.5)
+    :param RES:float: Resolution in degrees / must conform to the below data
+    :param lat:numpy.array or (anything that a enumerate can eat) with the latitudes (center of pixels)
+    :param lon:numpy.array or (anything that a enumerate can eat) with the longitudes (center of pixels)
 
     """
 
@@ -39,6 +43,29 @@ def find_coord(N:float, W:float, RES:float, lat, lon) -> tuple[int, int]:
 
     return Yind, Xind
 
+def percentile_treshold(arr, percentile=75, norm=False):
+    a = arr.flatten()
+    b = a[a != -9999.0]
+    if norm:
+        b = np.sqrt(b)
+    # TODO normalize first?
+    q1 = np.percentile(b, 25)
+    pct = np.percentile(b, percentile)
+    iqr = pct - q1
+    # print("3rd quartile + IQR: ", pct + iqr)
+    return pct + iqr
+
+# def make_all_mask():
+#     mask = []
+#     for pfrac in var:
+#         mask.append(make_DI_mask(pfrac))
+#     internal_mask = mask[0].mask
+#     return np.ma.masked_array(np.logical_or.reduce(mask), mask=internal_mask)
+
+def make_di_mask(di):
+    di_masked = np.ma.masked_array(di, di == -9999.0, fill_value=-9999.0)
+    return np.logical_not(np.array((di_masked >= percentile_treshold(di_masked.data)).data, dtype=np.bool_))
+
 
 def best_model(label):
     best_model = 0.0
@@ -50,32 +77,3 @@ def best_model(label):
             rf = models[i][2]
     print("Accuracy of model {}: {}".format(rf.random_state, best_model))
     return rf.random_state
-
-
-def get_dataset(label_name, with_names=False):
-    features = read_csv("./inputDATA/fitting_dataset.csv")
-
-# # Choose the features
-    feat_used = ["lat", "lon", "SRG", "Sand", "Silt", "Clay",
-                "Slope", "Elevation", "MAT", "MAP",
-                "pH", "TOC", "TN", label_name]
-
-    clean_data = features[feat_used]
-
-    # # One-hot encoding for nominal variables ('SRG')
-    dta = get_dummies(clean_data)
-
-    # Variable to be predicted as an np.array
-    label = array(dta[label_name])
-
-    # Exclude labels from features
-    feat = dta.drop(label_name, axis=1)
-
-    # Get the features names
-    feat_list = list(feat.columns)
-
-    # Transform in a NP.array
-    features = array(feat)
-    if with_names:
-        return features, feat_list, label, label_name
-    return features, label

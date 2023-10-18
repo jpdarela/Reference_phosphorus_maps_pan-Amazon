@@ -31,16 +31,18 @@ feat_list = ["lat","lon","Sand","Silt","Clay","Slope","Elevation","MAT","MAP","p
 
 pfracs = PFRACS
 
+models = Path("./selected_models/")
 
-fh = open("model_selection_scores.csv", 'w')
+metrics = Path("./model_evaluation_metrics")
+os.makedirs(metrics, exist_ok=True)
+
+fh = open(metrics/Path("model_selection_scores.csv"), 'w')
 fh.write(",".join(['pform', 'nmodels', 'mean_acc', "mae", "r2", "cv_mean", "cv_std" + "\n"]))
 fh.close()
 
-models = Path("./selected_models/")
 predictors = './inputDATA/predictive.csv'
 
 predictive_dataset = pd.read_csv(predictors)
-
 
 map_data = predictive_dataset[feat_list].__array__()
 template = predictive_dataset[["OID_","lat", "lon"]]
@@ -83,11 +85,12 @@ for label_name in pfracs:
         output_data[label_name] = new_column
         output_data.to_feather(output/Path("predicted_%s_model_%s.feather" % (label_name, str(md[0]))))
 
-    with open('model_selection_scores.csv', 'a') as csv_file:
+    with open(metrics/Path('model_selection_scores.csv'), 'a') as csv_file:
         line = [label_name, str(i+1), str(round(sum(acc) / (i + 1), 2)), str(mean(mae)), str(mean(r2)), str(mean(cv_mean)), str(mean(cv_std)) + "\n"]
         csv_file.write(",".join(line))
         print(label_name, 'number of models: ', i + 1, end='-> ')
         print('Mean acc: ', sum(acc) / (i + 1))
+
     index = list(map(int, range(len(r_state))))
     eval_metrics= {"random_state" : r_state,
                    "accuracy": acc,
@@ -97,5 +100,5 @@ for label_name in pfracs:
                    "MAE": mae}
 
     df = pd.DataFrame(data=eval_metrics, index=index)
-    df.to_csv(f"eval_metrics_{label_name}.csv", index=False)
+    df.to_csv(metrics/Path(f"eval_metrics_{label_name}.csv"), index=False)
 
