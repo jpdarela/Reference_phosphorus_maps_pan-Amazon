@@ -188,7 +188,7 @@ def process(label_name):
     # SD & SE
     pSD = data.std(axis=0,)
     save_nc(f"{outnc/Path(f'{label_name}_SD.nc')}", pSD, label_name)
-    pSE = pSD/sqrt(mdim) - 1
+    pSE = pSD/sqrt(mdim)
     save_nc(f"{outnc/Path(f'{label_name}_SE.nc')}", pSE, label_name)
 
     #Estimate area density pools

@@ -14,6 +14,7 @@ from numba import jit
 
 PFRACS = ["inorg_p", "org_p", "avail_p", "occ_p" , "total_p"]
 
+
 @jit(nopython=True)
 def find_coord(N:float,
                W:float,
@@ -43,28 +44,33 @@ def find_coord(N:float,
 
     return Yind, Xind
 
+
 def percentile_treshold(arr, percentile=75, norm=False):
     a = arr.flatten()
     b = a[a != -9999.0]
     if norm:
         b = np.sqrt(b)
-    # TODO normalize first?
     q1 = np.percentile(b, 25)
     pct = np.percentile(b, percentile)
     iqr = pct - q1
-    # print("3rd quartile + IQR: ", pct + iqr)
     return pct + iqr
 
-# def make_all_mask():
-#     mask = []
-#     for pfrac in var:
-#         mask.append(make_DI_mask(pfrac))
-#     internal_mask = mask[0].mask
-#     return np.ma.masked_array(np.logical_or.reduce(mask), mask=internal_mask)
+
+def make_all_mask(all_arr):
+    mask = all_arr[0] == -128
+    all = np.array(np.logical_or.reduce(all_arr), dtype=np.int8)
+    all[mask.mask] = -128
+    return all
+
 
 def make_di_mask(di):
-    di_masked = np.ma.masked_array(di, di == -9999.0, fill_value=-9999.0)
-    return np.logical_not(np.array((di_masked >= percentile_treshold(di_masked.data)).data, dtype=np.bool_))
+    nodata_mask = di == -9999.0
+    di_masked = np.ma.masked_array(di, nodata_mask, fill_value=-9999.0)
+    bool_mask = di_masked >= percentile_treshold(di_masked.data)
+    mask = np.array(bool_mask.data, dtype=np.bool_)
+    mask = np.array(mask, dtype=np.int8)
+    mask[nodata_mask] = -128
+    return mask
 
 
 def best_model(label):
@@ -77,3 +83,11 @@ def best_model(label):
             rf = models[i][2]
     print("Accuracy of model {}: {}".format(rf.random_state, best_model))
     return rf.random_state
+
+
+def best_30(label):
+    with open(f"./selected_models/models_{label}.pkl", "rb") as fh:
+        models = load(fh)
+    # Sort models according to cross validation scores
+    sorted_lst = sorted(models, key=lambda x:x[4], reverse=True)
+    return sorted_lst[:30]

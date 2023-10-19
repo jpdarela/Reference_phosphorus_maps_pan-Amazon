@@ -25,7 +25,7 @@ from utilities import PFRACS
 
 FILE = 1
 
-NMODELS = 100#_000
+NMODELS = 100_000
 
 """FIT RANDOM FOREST (RF) REGRESSORS AND SELECT THE MOST ACCURATE MODELS
    USAGE: $ python rforest_pfracs.py <x>
@@ -40,7 +40,7 @@ makedirs(dump_folder, exist_ok=True)
 pforms = ['Inorganic P', 'Organic P',
           'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
 
-SLICE = 5
+SLICE = NMODELS // 125 # 800 models per process
 
 n = str(sys.argv[1])
 

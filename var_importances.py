@@ -17,7 +17,7 @@ import pickle as pkl
 import pandas as pd
 import numpy as np
 
-FILE = 5
+FILE = 4
 
 """ Extract/Calculate the Gini/permutation importances of the selected RF models  """
 
