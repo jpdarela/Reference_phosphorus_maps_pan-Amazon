@@ -1,0 +1,12 @@
+<PAMDataset>
+  <Array name="/avail_p">
+    <Statistics>
+      <ApproxStats>1</ApproxStats>
+      <Minimum>0.479596048593521118</Minimum>
+      <Maximum>19.5795841217041016</Maximum>
+      <Mean>2.12756751385433862</Mean>
+      <StdDev>2.68264858439173448</StdDev>
+      <ValidSampleCount>98705</ValidSampleCount>
+    </Statistics>
+  </Array>
+</PAMDataset>

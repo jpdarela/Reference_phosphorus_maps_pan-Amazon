@@ -75,14 +75,15 @@ def make_di_mask(di):
 
 def best_model(label):
     best_model = 0.0
-    with open(f"./models_{label}.pkl", "rb") as fh:
+    with open(f"./selected_models/models_{label}.pkl", "rb") as fh:
         models = load(fh)
     for i in range(len(models)):
         if models[i][4] > best_model:
             best_model = models[i][4]
             rf = models[i][2]
+            idx = i
     print("Accuracy of model {}: {}".format(rf.random_state, best_model))
-    return rf.random_state
+    return models[idx]
 
 
 def best_30(label):
@@ -91,3 +92,4 @@ def best_30(label):
     # Sort models according to cross validation scores
     sorted_lst = sorted(models, key=lambda x:x[4], reverse=True)
     return sorted_lst[:30]
+

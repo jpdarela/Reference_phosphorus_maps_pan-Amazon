@@ -103,6 +103,7 @@ def calc_DI(norm_obs_data, norm_pred_data, name):
         # if c > 100000:
         #     break
     DI = np.array(DI)
+    np.save(f"./dissimilarity_index_masks/table_DI_{name}.npy", DI)
     img = rasterize(DI, clean=False, offset=1)
     print("OK")
     return img

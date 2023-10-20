@@ -17,7 +17,7 @@ FILE2=predict_P.py
 FILE3=table2raster.py
 FILE4=var_importances.py
 FILE5=di.py
-FILE6=plot_maps.py
+FILE6=plots.py
 FILE7=P_quantiles.py
 FILE8=partial_dependence_plots.py
 

@@ -29,6 +29,8 @@ FILE = 3
 comment = "Values for concentration and for area density estimates of P are for the 0-30 cm soil layer, i.e. the topsoil."
 
 geo_description = np.load("./inputDATA/extent.npz")
+area = geo_description["area"]
+mask = geo_description["mask"]
 lat = geo_description["lat"]
 lon = geo_description["lon"]
 cell_size = geo_description["cell_size"]

@@ -88,16 +88,16 @@ mask = rf_total_p.mask
 def convert(dt, unit_in, unit_out):
     return cfunits.Units.conform(dt, cfunits.Units(unit_in), cfunits.Units(unit_out))
 
-def concat_dfs(obs=obs, pred=pred, aoa="ALL1"):
+def concat_dfs(obs=obs, pred=pred, aoa="DI_ALL"):
     """concatenate the predictive and observed datasets including a categorical variable to identify the datasets"""
     #select features
-    features_obs = ('lat', 'lon', 'Sand', 'Silt', 'Clay', 'Slope', 'Elevation', 'MAT', 'MAP', 'pH', 'TOC', 'TN', "SRG")
+    features_obs = ('lat', 'lon', 'Sand', 'Silt', 'Clay', 'Slope', 'Elevation', 'MAT', 'MAP', 'pH', 'TOC', 'TN', "RSG")
     features_pred = ('lat', 'lon', 'Sand', 'Silt', 'Clay', 'Slope', 'Elevation', 'MAT', 'MAP', 'pH', 'TOC', 'TN')
-    pred = pd.read_csv("./inputDATA/predictor_dataset_AOA_ALL.csv")
+    pred = pd.read_csv("./inputDATA/results.csv")
 
     # FILTER AOA MAP
     # change this to plot with or without AOA-DI
-    pred1 = pred.loc[pred[aoa] == 1, :]
+    pred1 = pred.loc[pred[aoa] == 0, :]
     # pred1 = pred
     dt_obs = obs.loc[:, features_obs]
     dt_pred = pred1.loc[:, features_pred]

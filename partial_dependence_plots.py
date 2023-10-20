@@ -21,8 +21,8 @@ from sklearn.inspection import PartialDependenceDisplay, partial_dependence
 from sklearn.model_selection import train_test_split
 
 pforms = ['Inorganic P', 'Organic P',
-          'Available P', 'Total P']
-pfracs = ["inorg_p", "org_p", "avail_p", "total_p"]
+          'Available P', 'Total P', 'Occluded P']
+pfracs = ["inorg_p", "org_p", "avail_p", "total_p", "occ_p"]
 
 names = dict(zip(pfracs, pforms))
 
@@ -33,7 +33,7 @@ pathin = path.join(Path(getcwd()), Path("PDP_PLOTS"))
 makedirs(pathin, exist_ok=True)
 
 def feat_to_get(label):
-    return ["lat", "lon", "SRG","Sand", "Silt", "Clay",
+    return ["lat", "lon", "RSG","Sand", "Silt", "Clay",
             "Slope", "Elevation", "MAT", "MAP",
             "pH", "TOC", "TN", label]
 
