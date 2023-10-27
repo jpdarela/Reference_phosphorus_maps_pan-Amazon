@@ -29,7 +29,7 @@ FILE = 3
 comment = "Values for concentration and for area density estimates of P are for the 0-30 cm soil layer, i.e. the topsoil."
 
 geo_description = np.load("./inputDATA/extent.npz")
-area = geo_description["area"]
+area = geo_description["area"] * (-1)
 mask = geo_description["mask"]
 lat = geo_description["lat"]
 lon = geo_description["lon"]
@@ -217,6 +217,5 @@ if __name__ == "__main__":
         percentage = (pforms[var] / pforms["total_p"]) * 100.0
         save_nc(f"{outnc/Path(f'{var}_percentage_of_total_p.nc')}", percentage, var, units="%")
 
-    # calculate P stocks  (basin spatial integration)
-    #
+    save_nc("./inputDATA/area.nc", area, "area", units="m2")
 

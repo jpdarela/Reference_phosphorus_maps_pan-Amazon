@@ -569,12 +569,14 @@ def pdp_plots():
             **features_info,
             ax=ax)
         display.figure_.suptitle(f"Partial dependence of {names[label]}", fontsize=12)
+        for axes in ax.flat[1:]:
+            axes.legend().remove()
+
         plt.savefig(f"./p_figs/ICE_plot_{label}_{s1}_2_.png", dpi=300)
         plt.close(fig)
 
     for v in pfracs:
         plotPD(v)
-
 
 # Stats used in the description
 
@@ -616,8 +618,6 @@ def get_area_tot(form="ALL"):
     print(f"{(1 - aoa/total_area) * 100} % of the total area was excluded after the DI analysis for {form}")
     return (1 - aoa/total_area) * 100
 
-
-
 def plot_di_vars():
     plt.rc('legend', fontsize=4.8)
     plt.rc('font', size=6) #controls default text size
@@ -642,7 +642,6 @@ def plot_di_vars():
     plt.savefig("./p_figs/di_boxplot_vars.png", dpi=300)
     plt.close(fig)
 
-
 def plot_pforms_aoa():
     pforms_names = ['Total P', 'Available P', 'Organic P', 'Inorganic P', 'Occluded P']
     pf_1 = ['total_p', 'avail_p', 'org_p', 'inorg_p', "occ_p"]
@@ -662,16 +661,102 @@ def plot_pforms_aoa():
         ax.set(xticklabels=["low", "high DI"], xlabel=pforms_names[i])
     plt.savefig("./p_figs/Pforms_DI.png", dpi=300)
 
+def stats_pforms_table(form):
+    """print mean min and max concentrations (mg kg-1) for each P form in the DI cleaned area"""
+    df = pd.read_csv("./inputDATA/results.csv")
+    # return df
+    if form == "mineral_p":
+        sel = "ALL"
+    else:
+        sel = form
+
+    mask = df[f"DI_{sel}"] == 0
+
+    print(form)
+    print("Mean\t","min\t","max\t")
+    print(f"{round(df[form][mask].mean(), 2)}\t{round(df[form][mask].min(), 2)}\t{round(df[form][mask].max(), 2)}")
+
+def stocks_dens_conc(form="total_p"):
+    # # area = convert(np.ma.masked_array(area, mask=mask), "m2", "km2")
+    a = pa_area
+
+
+    if form == "mineral_p":
+        with Dataset("./results/mineral_p.nc", "r") as fh:
+            conc = fh.variables[form][:]
+            conc[conc < 0] = 0
+        di_mask = get_DI_mask("ALL")
+    else:
+        di_mask = get_DI_mask(form)
+        with Dataset(f"./results/{form}_AVG.nc", "r") as fh:
+            conc = fh.variables[form][:]
+
+    with Dataset(f"./results/{form}_area_density.nc", "r") as fh:
+        dens = fh.variables[form][:]
+        dens[dens < 0] = 0
+
+    comb_mask = np.ma.mask_or(di_mask, np.ma.getmask(dens))
+    dens = np.ma.masked_array(dens, mask=comb_mask)
+    conc = np.ma.masked_array(conc, mask=comb_mask)
+    a = np.ma.masked_array(a, mask=comb_mask)
+
+    stocks = a * dens
+    total = convert(stocks.sum(), "g", "Pg")
+
+    return float(total), conc.mean(), dens.mean(), conc.min(), conc.max()
+
+def plot_maps_stats():
+    for v in var:
+        print(v, end=" : ")
+        print("%.2f Pg P, mean concentration %.2f mg kg-1, mean density %.2f kg m-2 (conc min max = %.2f, %.2f)" %stocks_dens_conc(v))
+        # print(stats_pforms_table(v))
+
+def stats_tables(dset="fitting"):
+    variables = ['lat', 'lon', 'Sand', 'Silt', 'Clay', 'Slope', 'Elevation', 'MAT', 'MAP', 'pH', 'TOC', 'TN']
+    if dset == "fitting":
+        dt = pd.read_csv("./inputDATA/fitting_dataset.csv")
+    else:
+        dt = pd.read_csv("./inputDATA/predictive.csv")
+
+
+
+    # print(dt.describe().loc[["mean", "std",], :])
+    return dt[variables].describe().T.drop(["count"], axis=1)
+
+def compare():
+    import pandas as pd
+    from scipy.stats import pearsonr
+    df = pd.read_csv("./inputDATA/fitting_dataset_comparison.csv")
+
+    # assuming df is already defined
+    corr1, pval1 = pearsonr(df['total_p'], df['He_et_al'])
+    corr2, pval2 = pearsonr(df['total_p'], df['total_p_RF'])
+
+    print(f"Pearson correlation between total_p and He_et_al: {corr1:.2f}, p-value: {pval1:.2f}")
+    print(f"Pearson correlation between total_p and total_p_RF: {corr2:.2f}, p-value: {pval2:.2f}")
 
 if __name__ == "__main__":
+    for v in var:
+        plot_Pmap(v)
+        if v != "mineral_p":
+            plot_eval_metrics(v)
+    bplot_perm_imp_avg2()
+    bplot_perm_imp_avg3()
+    DI_boxplot()
+    boxplots_SM()
+    pdp_plots()
+    kernplots_DI()
+    pair_grid_elev()
+    print_stats_P_dataset()
+    get_area_tot()
+    get_area_tot("inorg_p")
+    get_area_tot("org_p")
+    get_area_tot("avail_p")
+    get_area_tot("occ_p")
+    get_area_tot("total_p")
+    plot_di_vars()
+    plot_pforms_aoa()
+    plot_maps_stats()
+    compare()
     pass
-    # for v in var:
-    # #     plot_Pmap(v)
-    #     if v != "mineral_p":
-    #         plot_eval_metrics(v)
-    # bplot_perm_imp_avg2()
-    # bplot_perm_imp_avg3()
-    # DI_boxplot()
-    # boxplots_SM()
-    # pdp_plots()
-    # pdp_plots()
+

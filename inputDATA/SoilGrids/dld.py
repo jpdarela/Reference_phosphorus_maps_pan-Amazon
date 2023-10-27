@@ -37,8 +37,6 @@ BBOX = [-80, -21, -42, 10]
 
 filepaths = {}
 
-
-
 map_servers = {"nitrogen":     "https://maps.isric.org/mapserv?map=/map/nitrogen.map",
                "bdod":         "https://maps.isric.org/mapserv?map=/map/bdod.map",
                "clay":         "https://maps.isric.org/mapserv?map=/map/clay.map",
@@ -57,7 +55,6 @@ conv_factors = {          # converts to:
     "soc": 1/10/10,       # %
     "phh2o": 1/10,        # -log(H+)
     }
-
 
 new_name = {
     "nitrogen": "nitrogen",
