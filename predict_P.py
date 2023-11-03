@@ -21,7 +21,7 @@ FILE = 2
 """Apply the selected models to predict P forms over the Study Area (Predict with spatially
    explicit data. Also generates tables with model evaluation metrics and metadata)
    USAGE: $ python predict_P.py
-   SIDE EFFECTS: .csv tables with predicted values for each selected model for each P form"""
+   SIDE EFFECTS: .feather tables with predicted values for each selected model for each P form"""
 
 
 feat_list = ["lat","lon","Sand","Silt","Clay","Slope","Elevation","MAT","MAP","pH","TOC",

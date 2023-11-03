@@ -10,32 +10,32 @@
 import csv
 import os
 
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import cfunits
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
-import matplotlib.gridspec as gridspec
-from matplotlib.lines import Line2D
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-from cartopy.io.shapereader import Reader
 from cartopy.feature import ShapelyFeature
+from cartopy.io.shapereader import Reader
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from matplotlib.lines import Line2D
+from matplotlib.path import Path
 from netCDF4 import Dataset
 from sklearn.inspection import PartialDependenceDisplay
 from sklearn.model_selection import train_test_split
 
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import cfunits
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+from scientific_colourmaps import batlowK_map as batlowK
 from table2raster import cell_size, lat, lon, area
 from table2raster import mask as raster_mask
 from utilities import best_model
 
-from scientific_colourmaps import batlowK_map as batlowK
-
 FILE = 7
 
-pa_area = np.ma.masked_array(area, mask = raster_mask) * (-1)
+pa_area = np.ma.masked_array(area, mask = raster_mask)
 
 EXTENT = [lon[ 0] - cell_size / 2,
           lon[-1] + cell_size / 2,

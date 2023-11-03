@@ -8,8 +8,9 @@
    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 from math import sqrt
-import concurrent.futures
 from os import makedirs
+
+import concurrent.futures
 import glob
 from pathlib import Path
 

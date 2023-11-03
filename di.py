@@ -10,7 +10,6 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.metrics import pairwise_distances
 
 from table2raster import rasterize, ydim, xdim, cell_size, lat, lon

@@ -8,7 +8,6 @@
    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
-from glob import glob1
 import csv
 from pathlib import Path
 from sklearn.inspection import permutation_importance
