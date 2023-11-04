@@ -29,7 +29,7 @@ NMODELS = 100_000
 
 """FIT RANDOM FOREST (RF) REGRESSORS AND SELECT THE MOST ACCURATE MODELS
    USAGE: $ python rforest_pfracs.py <x>
-   Where x is in ["inorg_p", "org_p", "avail_p", "total_p"].
+   Where x is in ["inorg_p", "org_p", "avail_p", "occ_p", "total_p"].
 
    SIDE EFFECTS: create pickles with selected RF models
    """
@@ -37,8 +37,8 @@ NMODELS = 100_000
 dump_folder = Path("./selected_models").resolve()
 makedirs(dump_folder, exist_ok=True)
 
-pforms = ['Inorganic P', 'Organic P',
-          'Available P (Labile & Soluble)', 'Total P', "Occluded P", "Primary mineral P"]
+pforms = ['Inorganic P', 'Organic P', 'Available P (Labile & Soluble)',
+          'Total P', "Occluded P", "Primary mineral P"]
 
 SLICE = NMODELS // 125 # 800 models per process
 

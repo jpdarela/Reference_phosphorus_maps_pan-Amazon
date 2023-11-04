@@ -33,7 +33,7 @@ from table2raster import cell_size, lat, lon, area
 from table2raster import mask as raster_mask
 from utilities import best_model
 
-FILE = 7
+FILE = 6
 
 pa_area = np.ma.masked_array(area, mask = raster_mask)
 
@@ -728,7 +728,6 @@ def compare():
     from scipy.stats import pearsonr
     df = pd.read_csv("./inputDATA/fitting_dataset_comparison.csv")
 
-    # assuming df is already defined
     corr1, pval1 = pearsonr(df['total_p'], df['He_et_al'])
     corr2, pval2 = pearsonr(df['total_p'], df['total_p_RF'])
 

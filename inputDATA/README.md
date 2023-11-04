@@ -8,21 +8,17 @@ The [dataset](./fitting_dataset.csv) used to train and test the random forest mo
 
 ## Predictor dataset
 
-Predictor data in raster format (geotiff) is provided in half degree resolution.
+Predictor [data](./predictive_rasters_5m/) in raster format (geotiff) is provided in 5 arcminutes resolution.
 
-All data in [table](./predictor_dataset.csv) format prepared to feed the random forest models for prediction.
+All data in [table](./predictive.csv) format prepared to feed the random forest models for prediction.
 
 ## Results
 
-A [table](./final_dataset_pred_DI_Pforms.csv) with results is provided.
+A [table](./results_final.csv) with results is provided.
 
 ## References
 
-Dijkshoorn, J. A., Huting, J. R. M., and P., T.: Update of the 1:5 million Soil and Terrain Database for Latin America and the Caribbean (SOTERLAC; version 2.0), ISRIC – World Soil Information [dataset], 2005.
-
-Fick, S. E. and Hijmans, R. J.: WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas, Int J Climatol, 37, 4302-4315, <https://doi.org/10.1002/joc.5086>, 2017.
-
-Global Soil Data Task. Global Soil Data Products CD-ROM Contents (IGBP-DIS), ORNL DAAC [dataset], <https://doi.org/10.3334/ORNLDAAC/565>, 2014.
+Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D.: Soilgrids 2.0: Producing Soil Information for the Globe with Quantified Spatial Uncertainty, SOIL, 7, 217-240, <https://doi.org/10.5194/soil-7-217-2021>, 2021.
 
 Hou, E., Tan, X., Heenan, M., and Wen, D.: A global dataset of plant available and unavailable phosphorus in natural soils derived by Hedley method, Sci Data, 5, 180166, <https://doi.org/10.1038/sdata.2018.166>, 2018.
 
@@ -35,5 +31,3 @@ Quesada, C. A., Paz, C., Oblitas Mendoza, E., Phillips, O. L., Saiz, G., and Llo
 Quesada, C. A., Lloyd, J., Schwarz, M., Patino, S., Baker, T. R., Czimczik, C., Fyllas, N. M., Martinelli, L., Nardoto, G. B., Schmerler, J., Santos, A. J. B., Hodnett, M. G., Herrera, R., Luizao, F. J., Arneth, A., Lloyd, G., Dezzeo, N., Hilke, I., Kuhlmann, I., Raessler, M., Brand, W. A., Geilmann, H., Moraes, J. O., Carvalho, F. P., Araujo, R. N., Chaves, J. E., Cruz, O. F., Pimentel, T. P., and Paiva, R.: Variations in chemical and physical properties of Amazon forest soils in relation to their genesis, Biogeosciences, 7, 1515-1541, <https://doi.org/10.5194/bg-7-1515-2010>, 2010.
 
 Saatchi, S. S.: LBA-ECO LC-15 SRTM30 Digital Elevation Model Data, Amazon Basin: 2000, ORNL Distributed Active Archive Center [dataset], <https://doi.org/10.3334/ORNLDAAC/1181>, 2013.
-
-Wieder, W.: Regridded Harmonized World Soil Database v1.2, ORNL Distributed Active Archive Center [dataset], <https://doi.org/10.3334/ORNLDAAC/1247> 2014.
