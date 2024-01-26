@@ -1,5 +1,7 @@
 # Reference maps of soil phosphorus for the pan-Amazon region - CODE & DATA
 
+[![DOI](https://zenodo.org/badge/658640649.svg)](https://zenodo.org/doi/10.5281/zenodo.10571880)
+
 Darela-Filho, J. P., & Lapola, D. M. (2023). Reference maps of soil phosphorus for the pan-Amazon region: code and data, V3, Repositório de Dados de Pesquisa da Unicamp. <https://doi.org/doi:10.25824/redu/FROESE>
 
 ## Introduction

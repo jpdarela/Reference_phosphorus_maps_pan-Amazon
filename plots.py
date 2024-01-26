@@ -483,12 +483,13 @@ def boxplots_SM():
 
 
 def kernplots_DI():
+    """kde plot comparing hig DI/ low DI"""
     plt.rc('legend', fontsize=4.8)
     plt.rc('font', size=6) #controls default text size
     plt.rc('axes', titlesize=6) #fontsize of the title
     plt.rc('xtick', labelsize=6) #fontsize of the x tick labels
     plt.rc('ytick', labelsize=6) #fontsize of the y tick labels
-    "kde plot comparing hig DI/ low DI"
+
     dt = pd.read_csv("./inputDATA/results.csv")
     fig, axs = plt.subplots(ncols=4, nrows=3, layout="tight", figsize=(7,4.5))
     variables = ['lat', 'lon', 'Sand', 'Silt', 'Clay', 'Slope', 'Elevation', 'MAT', 'MAP', 'pH', 'TOC', 'TN']
@@ -502,8 +503,8 @@ def kernplots_DI():
                 sns.kdeplot(data=dt, x=variables[count], hue="DI_ALL", ax=axin, legend=None, common_norm=False)
             axin.set(xlabel=variables[count], ylabel="")
             count += 1
-    plt.legend(title="DI", labels=["L", "H"])
-    plt.savefig("./p_figs/DI_inout_kern_dens.png", dpi=300)
+    plt.legend(title="DI", labels=["H", "L"])
+    plt.savefig("./p_figs/DI_inout_kern_dens2.png", dpi=300)
     plt.close(fig)
 
 
@@ -735,27 +736,27 @@ def compare():
     print(f"Pearson correlation between total_p and total_p_RF: {corr2:.2f}, p-value: {pval2:.2f}")
 
 if __name__ == "__main__":
-    for v in var:
-        plot_Pmap(v)
-        if v != "mineral_p":
-            plot_eval_metrics(v)
-    bplot_perm_imp_avg2()
-    bplot_perm_imp_avg3()
-    DI_boxplot()
-    boxplots_SM()
-    pdp_plots()
+    # for v in var:
+    #     plot_Pmap(v)
+    #     if v != "mineral_p":
+    #         plot_eval_metrics(v)
+    # bplot_perm_imp_avg2()
+    # bplot_perm_imp_avg3()
+    # DI_boxplot()
+    # boxplots_SM()
+    # pdp_plots()
     kernplots_DI()
-    pair_grid_elev()
-    print_stats_P_dataset()
-    get_area_tot()
-    get_area_tot("inorg_p")
-    get_area_tot("org_p")
-    get_area_tot("avail_p")
-    get_area_tot("occ_p")
-    get_area_tot("total_p")
-    plot_di_vars()
-    plot_pforms_aoa()
-    plot_maps_stats()
-    compare()
+    # pair_grid_elev()
+    # print_stats_P_dataset()
+    # get_area_tot()
+    # get_area_tot("inorg_p")
+    # get_area_tot("org_p")
+    # get_area_tot("avail_p")
+    # get_area_tot("occ_p")
+    # get_area_tot("total_p")
+    # plot_di_vars()
+    # plot_pforms_aoa()
+    # plot_maps_stats()
+    # compare()
     pass
 
