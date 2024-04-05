@@ -66,6 +66,6 @@ The chosen colormaps are colourblind-friendly. I am thankful to Fabio Crameri fo
 
 ### References
 
-1 - Darela-Filho, J. P., Rammig, A., Fleischer, K., Reichert, T., Lugli, L. F., Quesada, C. A., Hurtarte, L. C. C., de Paula, M. D., and Lapola, D. M.: Reference Maps of Soil Phosphorus for the Pan-Amazon Region, Earth Syst. Sci. Data Discuss., 2023, 1-24, [https://doi.org/10.5194/essd-2023-272](https://doi.org/10.5194/essd-2023-272), 2023.
+1 - Darela-Filho, J. P., Rammig, A., Fleischer, K., Reichert, T., Lugli, L. F., Quesada, C. A., Hurtarte, L. C. C., de Paula, M. D., and Lapola, D. M.: Reference Maps of Soil Phosphorus for the Pan-Amazon Region, Earth Syst Sci Data, 16, 715-729, [https://doi.org/10.5194/essd-16-715-2024](https://doi.org/10.5194/essd-16-715-2024), 2024.
 
 2 - Crameri F, Shephard GE, Heron PJ. 2020. The misuse of colour in science communication. Nature Communications 11(1): 5444.
